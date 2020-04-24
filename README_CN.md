@@ -25,7 +25,6 @@
 ## 如何使用
 
 * 克隆该策略项目至本地后，安装依赖：
-
   ```shell script
   pip install python-kumex
   ```
@@ -53,9 +52,9 @@
     "size": "Order size. Must be a positive number"
   }
   ```
-
   
-
+  
+  
 * 让你的策略运行起来：
 
   ```shell
