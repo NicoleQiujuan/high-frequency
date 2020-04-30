@@ -1,68 +1,72 @@
-# 高频跨期套利策略
+# High-frequency intertemporal arbitrage
 
-## 策略说明
+## Strategy description
 
-交易标的：比特币（BTC）
+Trading target: BTC  
 
-价差数据：BTC 永续 - BTC 季度（省略协整性检验）
+Source of price spread: BTC Perpetual - BTC Quarterly (omit cointegration test)  
 
-交易周期：1 分钟
+Trading period: 1 minute
 
-头寸匹配：1:1
+Position ratio: 1:1  
 
-交易类型：同品种跨期
+Trading type: intertemporal arbitrage
 
-做多价差开仓条件：如果当前账户没有持仓，并且价差 < （长期价差水平 - 阈值），就做多价差。即：买开 BTC 永续，卖开 BTC 季度。
+Condition of price spread for longing: If there is no position in current account and price spread < (usual price spread - threshold), long the price spread which means long BTC Perpetual and short BTC Quarterly.  
 
-做空价差开仓条件：如果当前账户没有持仓，并且价差 > （长期价差水平 + 阈值），就做空价差。即：卖开 BTC 永续，买开 BTC 季度。
+Condition of price spread for shorting: If there is no position in current account and price spread > (usual price spread + threshold), short the price spread which means short BTC Perpetual and long BTC Quarterly.  
 
-做多价差平仓条件：如果当前账户持有 BTC 永续多单，并且持有 BTC 季度空单，并且价差 > 长期价差水平，就平多价差。即：卖平 BTC 永续，买平 BTC 季度。
+Condition of price spread for closing long position: If there is BTC Perpetual long position and BTC Quarterly short position, while price spread > usual price spread, close the long price spread positions, which means short to close the BTC Perpetual position and long to close the BTC Quarterly position.  
 
-做空价差平仓条件：如果当前账户持有 BTC 永续空单，并且持有 BTC 季度多单，并且价差 < 长期价差水平，就平空价差。即：买平 BTC 永续，卖平 BTC 季度。
+Condition of price spread for closing short position: If there is BTC Perpetual short position and BTC Quarterly long position, while price spread < usual price spread, close the short price spread positions, which means long to close the BTC Perpetual position and short to close the BTC Quarterly position.  
 
-**举个例子**，假设 BTC 永续 和 BTC 当季的价差长期维持在 35 左右。如果某一天价差达到 50 ，我们预计价差会在未来某段时间回归到 35 及以下。那么就可以卖出 BTC 永续，同时买入 BTC 当季，来做空这个价差。反之亦然，注意 BTC 永续 和 BTC 当季 的价差总会回归到0附近（到期交割），所以价差为正的时候，优先做空价差，价差为负的时候，优先做多价差
+e.g.: If the usual price spread between BTC Perpetual and BTC Quarterly is 35. One day, the price spread rises up to 50, we predict the price spread will go back below to 35 in future. Then we could short BTC Perpetual and long BTC Quarterly to short the price spread - vice versa.  
 
-**请注意，这里仅提供一个简单且不完备的交易策略，所以在使用时请注意规避风险，当然，我们不希望你出现较多的亏损，所以在未经自己亲手测试之前，请千万不要直接在实际环境使用，我们也不想你成为一个慈善家！！！**
+Notice: The price spread between BTC Perpetual and BTC Quarterly will always return around to 0 (maturity date), so when the price spread is positive, short the price spread in priority, and when the price spread is negative, long the price spread in priority.  
 
-**不过，如果你想在实际环境中利用策略获得稳定的盈利，我们希望你能够在sandbox环境配合其他参数或是策略进行测试调整，以使你能够达到目的。**
+**Moreover, KuCoin provides the transaction data of level 3, great matching engine, and the commission discount specially offers to the API customers, which could greatly reduce the disadvantages of the trading operations. At the same time, we offer the sandbox environment as the data testing support to avoid the risks.**
 
-**当然，如果这个过程中，你遇到任何问题需要帮助亦或是有赚钱的策略想要分享，请在ISSUE中反映，我们会努力及时响应**。
+**Only a simple and incomplete trading strategy is provided here, so please pay attention to avoiding risks when using it. Of course, we do not want you to suffer more losses, so please do not directly run it in the actual environment before you have tested it yourself. We do not want you to become a philanthropist! ! !**
 
-## 如何使用
+**If you want to use the strategy in the actual environment to earn stable profits, we hope that you can make test adjustments in the sandbox environment with other parameters or strategies to enable you to achieve your goals. We also look forward to sharing your test data and Insights.**
 
-* 克隆该策略项目至本地后，安装依赖：
+**Surely, if you encounter any problems in this process, or you have a profitable strategy to share, please reflect in ISSUE, we will try to respond in a timely manner.**
+
+## How to use
+
+* After clone this project to your local, install the dependency: 
 
   ```shell script
   pip install python-kumex
   ```
 
-* 复制config.json.example，并重命名为config.json，然后完善相关的配置信息
+* Paste config.json.example,  rename as config.json, then add the relevant configuration information:  
 
   ```json
   {  
     "api_key": "api key",
     "api_secret": "api secret",
     "api_passphrase": "api pass phrase",
-    // 是否是沙盒环境
+    //  if sandbox
     "is_sandbox": true,
-    // 合约名称，比如：XBTUSDM
+    // contract name, e.g.: XBTUSDM
     "symbol_a": "contract name",
-    // 合约名称，比如：XBTMM20
+    // contract name, e.g.: XBTMM20
     "symbol_b": "contract name",
-    // 长期价差水平，可取前三天的价差均值  
+    // usual price spread, good as the average price of the past 3 days price spread  
     "spread_mean": "average closed price for 3 days",
-    // 价差阈值，可取前三天的价差2倍标准差左右
+    // price spread threshold, good as 2 times of the standard deviation of the past 3 days price spread
     "num_param": "2 * Standard deviation of spread_mean",
-    // 杠杆倍数，比如：5
+    // leverage, e.g.:5
     "leverage": "Leverage of the order",
-    // 开仓数量，比如：1
+    // order size, e.g.: 1
     "size": "Order size. Must be a positive number"
   }
   ```
 
   
 
-* 让你的策略运行起来：
+* Run your strategy
 
   ```shell
   ./high_frequency.py
