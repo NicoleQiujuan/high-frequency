@@ -42,7 +42,7 @@ Notice: The price spread between BTC Perpetual and BTC Quarterly will always ret
 
 * Paste config.json.example,  rename as config.json, then add the relevant configuration information:  
 
-  ```json
+  ```
   {  
     "api_key": "api key",
     "api_secret": "api secret",
